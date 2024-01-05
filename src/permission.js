@@ -1,28 +1,29 @@
 import router from './router'
 import store from './store'
 import { Message } from 'element-ui'
-import NProgress from 'nprogress' // progress bar
-import 'nprogress/nprogress.css' // progress bar style
-import { getToken } from '@/utils/auth' // get token from cookie
+import NProgress from 'nprogress' //   进度条组件
+import 'nprogress/nprogress.css' //   进度条样式
+import { getToken } from '@/utils/auth' //  从cookie中获取令牌
 import getPageTitle from '@/utils/get-page-title'
 
-NProgress.configure({ showSpinner: false }) // NProgress Configuration
+NProgress.configure({ showSpinner: false }) // NProgress配置项  是否显示环形动画，默认为true
 
-const whiteList = ['/login'] // no redirect whitelist
+const whiteList = ['/login'] // 没有设置重定向
 
-router.beforeEach(async(to, from, next) => {
-  // start progress bar
+// 路由前置守卫
+router.beforeEach(async (to, from, next) => {
+  // 启动季度条
   NProgress.start()
 
-  // set page title
+  // 设置页面标题
   document.title = getPageTitle(to.meta.title)
 
-  // determine whether the user has logged in
+  // 判断用户是否已经登录
   const hasToken = getToken()
 
   if (hasToken) {
     if (to.path === '/login') {
-      // if is logged in, redirect to the home page
+      // 如果已经登录，重定向到主页
       next({ path: '/' })
       NProgress.done()
     } else {
@@ -31,7 +32,7 @@ router.beforeEach(async(to, from, next) => {
         next()
       } else {
         try {
-          // get user info
+          // 获取用户信息
           await store.dispatch('user/getInfo')
 
           next()
@@ -58,7 +59,8 @@ router.beforeEach(async(to, from, next) => {
   }
 })
 
+// 路由后置守卫
 router.afterEach(() => {
   // finish progress bar
-  NProgress.done()
+  NProgress.done() // 进度条加载完成
 })
